@@ -1,7 +1,10 @@
 import 'dart:io';
+import 'package:classify_garbage/classes/garbage_data.dart';
 import 'package:classify_garbage/classes/location.dart';
 import 'package:classify_garbage/classes/prediction.dart';
-import 'package:classify_garbage/resize.dart';
+import 'package:classify_garbage/shared/orientation.dart';
+import 'package:classify_garbage/services/database.dart';
+import 'package:classify_garbage/shared/loading.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -17,11 +20,14 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
 
   File _image;
   bool _loading = false;
+  bool _connection = false;
   Model valueChoose;
   Model _model;
   Prediction _prediction;
+  GarbageData garbageData;
   String conf;
   ImageLocation _loc;
+  
 
   List<Model> modelList = [
     Model(name: 'Dump Classifier',
@@ -41,7 +47,9 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
     if (_model == null) {
       valueChoose = modelList[0];
     }
-    _model = Model(name: valueChoose.name, modelPath: valueChoose.modelPath, labelPath: valueChoose.labelPath);
+    _model = Model(name: valueChoose.name,
+        modelPath: valueChoose.modelPath,
+        labelPath: valueChoose.labelPath);
     _model.loadModel().then((val) {
       setState(() {
         _loading = false;
@@ -49,10 +57,38 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
     });
   }
 
+    Future<GarbageData> createResult() async {
+      return GarbageData(
+          modelname: _model.name ?? valueChoose.name,
+          label: _prediction.label,
+          confidence: _prediction.confidence,
+          longitude: _loc.location.longitude,
+          latitude: _loc.location.latitude,
+          timestamp: _loc.location.timestamp.toLocal() ?? DateTime.now().toLocal(),
+          country: _loc.address.countryName ?? '',
+          state: _loc.address.adminArea ?? '',
+          city: _loc.address.locality ?? '',
+          locality: _loc.address.subLocality ?? '',
+          postalCode: _loc.address.postalCode
+      );
+    }
 
-  Future getImage() async {
+  sendData(GarbageData data) async {
+    try {
+      if(data.label == 'garbage') {
+        await DatabaseService().postGarbageData(data);
+      } else {
+        print("Garbage data not found");
+      }
+    } catch(e) {
+      setState(() => _connection = true);
+      print(e);
+    }
+  }
+
+  Future getImage(ImageSource source) async {
     _model = valueChoose;
-    var image = await ImagePicker().getImage(source: ImageSource.camera);
+    var image = await ImagePicker().getImage(source: source);
     if (image == null) return null;
     setState(() {
       _loading = true;
@@ -60,9 +96,13 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
     });
     await _prediction.predictImage(_image);
     await _loc.getLocation();
-    setState(() {});
+    garbageData = await createResult();
+    sendData(garbageData);
+    setState(() => _loading = false);
     print(_prediction.outputs);
+    print(garbageData.country);
   }
+
 
   @override
   void dispose() {
@@ -70,27 +110,20 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
+
     super.build(context);
-    return Scaffold(
+    return _loading ? Loading() : Scaffold(
       resizeToAvoidBottomInset: false,
         appBar: AppBar(
           leading: Container(),
           title: Text("Garbage Classification"),
-          backgroundColor: Colors.blueAccent,
+          backgroundColor: Colors.blueGrey,
           centerTitle: true,
-          elevation: 0,
         ),
         body: Container(
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/landscape.jpg'),
-                  fit: BoxFit.cover,
-                )
-            ),
+            color: Colors.blue[100],
             child: Column(
             children: [
               Container(
@@ -104,7 +137,7 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
                         'No Image Selected',
                         style: TextStyle(
                           fontSize: 30.0,
-                          color: Colors.white,
+                          color: Colors.grey[900],
                           letterSpacing: 2.0,
                         ),
                       ),
@@ -114,10 +147,10 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
                         height: 400,
                         width: 400,
                         decoration: BoxDecoration(
-                            color: Colors.grey[300],
+                            color: Colors.black45,
                             //borderRadius: BorderRadius.circular(30),
                             border: Border.all(
-                                color: Colors.grey[300], width: 5.0),
+                                color: Colors.black45, width: 5.0),
                             image: DecorationImage(
                                 image: FileImage(_image),
                                 fit: BoxFit.cover
@@ -126,7 +159,7 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
                       ),
                     ),
                     _image == null ? Container() : _prediction.outputs != null ? Card(
-                      color: Colors.grey[300],
+                      color: Colors.blue[50],
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
@@ -150,7 +183,7 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
                 ),
               ),
               Container(
-                height: 200,
+                height: 250,
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   children: [
@@ -159,20 +192,20 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
                       child: Container(
                         padding: EdgeInsets.only(left: 10.0, right: 10.0),
                         decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white, width: 1, style: BorderStyle.solid),
+                            border: Border.all(color: Colors.black45, width: 1, style: BorderStyle.solid),
                             borderRadius: BorderRadius.circular(10)
                         ),
                         child: DropdownButton(
-                          icon: Icon(Icons.arrow_drop_down, color: Colors.white),
+                          icon: Icon(Icons.arrow_drop_down, color: Colors.black87),
                           hint: Text(
                               "Choose Model Type"
                           ),
-                          dropdownColor: Colors.grey,
+                          dropdownColor: Colors.white,
                           value: valueChoose,
                           isExpanded: true,
                           underline: SizedBox(),
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.grey[900],
                               fontSize: 20.0
                           ),
                           onChanged: (newValue) {
@@ -189,15 +222,36 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: IconButton(
-                        icon: Icon(Icons.camera),
-                        iconSize: 50.0,
-                        color: Colors.white,
-                        onPressed: getImage,
-                        tooltip: 'Click Me',
-                      )
+                    SizedBox(height: 20.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: IconButton(
+                            icon: Icon(Icons.camera),
+                            iconSize: 50.0,
+                            color: Colors.black54,
+                            onPressed: () {
+                              getImage(ImageSource.camera);
+                            },
+                            tooltip: 'Camera',
+                          )
+                        ),
+                        SizedBox(width: 30.0),
+                        Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: IconButton(
+                              icon: Icon(Icons.image_outlined),
+                              iconSize: 50.0,
+                              color: Colors.black54,
+                              onPressed: () {
+                                getImage(ImageSource.gallery);
+                              },
+                              tooltip: 'Gallery',
+                            )
+                        ),
+                      ],
                     )
                   ],
                 ),

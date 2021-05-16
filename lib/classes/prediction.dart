@@ -7,8 +7,9 @@ class Prediction {
   String number = "";
   String label = "";
   String confidence = "";
-  double imageWidth;
-  double imageHeight;
+
+  double _imageWidth;
+  double _imageHeight;
 
 
   Future predictImage(File image) async {
@@ -17,8 +18,8 @@ class Prediction {
     new FileImage(image)
         .resolve(new ImageConfiguration())
         .addListener(ImageStreamListener((ImageInfo info, bool _) {
-          imageHeight = info.image.height.toDouble();
-          imageWidth = info.image.width.toDouble();
+          _imageHeight = info.image.height.toDouble();
+          _imageWidth = info.image.width.toDouble();
     }));
   }
 
@@ -32,7 +33,7 @@ class Prediction {
       imageStd: 127.5,
     );
     outputs = op;
-    updateParams();
+    await updateParams();
   }
 
   Future updateParams() async {

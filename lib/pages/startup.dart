@@ -1,3 +1,4 @@
+import 'package:classify_garbage/shared/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -11,8 +12,6 @@ class Startup extends StatefulWidget {
 
 class _StartupState extends State<Startup> {
 
-  bool _loading = false;
-
   void gotoHome() async {
     await Future.delayed(Duration(seconds: 3));
     Navigator.pushNamed(context, '/home');
@@ -21,16 +20,7 @@ class _StartupState extends State<Startup> {
   @override
   Widget build(BuildContext context) {
     gotoHome();
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/earth.jpeg'),
-            fit: BoxFit.cover,
-          )
-        ),
-      ),
-    );
+    return Loading();
   }
 }
 
