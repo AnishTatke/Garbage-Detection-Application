@@ -10,16 +10,11 @@ class Model {
 
   loadModel() async {
     Tflite.close();
-    try {
-      String res;
-      res = await Tflite.loadModel(
-          model: modelPath,
-          labels: labelPath
-      );
-      print("Loaded the model: $res");
-    } on PlatformException {
-      print("Failed to load model");
-    }
+    String res = await Tflite.loadModel(
+      model: modelPath,
+      labels: labelPath,
+    );
+    print("Loaded the model: $res");
   }
 
 }

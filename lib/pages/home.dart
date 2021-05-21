@@ -31,10 +31,10 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
 
   List<Model> modelList = [
     Model(name: 'Dump Classifier',
-        modelPath: 'assets/gdump/tf_lite_model.tflite',
+        modelPath: 'assets/gdump/vgg16_dump.tflite',
         labelPath: 'assets/gdump/labels.txt'),
     Model(name: 'Trash Classifier',
-        modelPath: 'assets/trash/tf_lite_model.tflite',
+        modelPath: 'assets/trash/vgg16_trash.tflite',
         labelPath: 'assets/trash/labels.txt')
   ];
 
@@ -50,6 +50,7 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
     _model = Model(name: valueChoose.name,
         modelPath: valueChoose.modelPath,
         labelPath: valueChoose.labelPath);
+
     _model.loadModel().then((val) {
       setState(() {
         _loading = false;
@@ -118,7 +119,12 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
       resizeToAvoidBottomInset: false,
         appBar: AppBar(
           leading: Container(),
-          title: Text("Garbage Classification"),
+          title: Text(
+            "Garbage App",
+            style: TextStyle(
+              fontSize: 25.0,
+            ),
+          ),
           backgroundColor: Colors.blueGrey,
           centerTitle: true,
         ),
@@ -164,16 +170,16 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           _prediction.label == 'non-garbage' ? ListTile(
-                            leading: Icon(Icons.thumb_up_alt_outlined),
-                            title: _loc.location != null ? Text("Image does not contain garbage at location ${_loc.location.longitude}, ${_loc.location.latitude}") : Text("Image does not contain garbage"),
+                            leading: Icon(Icons.thumb_up_alt_outlined, size: 60.0),
+                            title: _loc.location != null ? Text("Image does not contain garbage") : Text("Image does not contain garbage"),
                             subtitle: _prediction.confidence != null
-                                ? Text(_prediction.confidence + " ${_model.name}")
+                                ? Text("${_model.name}: ${_prediction.confidence}")
                                 : Text(""),
                           ) : ListTile(
-                            leading: Icon(CupertinoIcons.trash),
-                            title: _loc.location != null ? Text("Image contains garbage at location ${_loc.location.longitude}, ${_loc.location.latitude}") : Text("Image contains garbage"),
+                            leading: Icon(CupertinoIcons.trash, size: 60.0),
+                            title: _loc.location != null ? Text("Image contains garbage") : Text("Image contains garbage"),
                             subtitle: _prediction.confidence != null
-                                ? Text(_prediction.confidence + " ${_model.name}")
+                                ? Text("${_model.name}: ${_prediction.confidence}")
                                 : Text(""),
                           )
                         ],

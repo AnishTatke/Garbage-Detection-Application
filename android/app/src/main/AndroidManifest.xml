@@ -2,7 +2,7 @@
     package="com.example.classify_garbage">
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
    <application
-        android:label="classify_garbage_v2"
+        android:label="Garbage App"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

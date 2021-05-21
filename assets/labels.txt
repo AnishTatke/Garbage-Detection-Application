@@ -1,2 +1,0 @@
-0 garbage
-1 non-garbage
