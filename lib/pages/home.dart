@@ -17,7 +17,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
-
   File _image;
   bool _loading = false;
   bool _connection = false;
@@ -27,19 +26,21 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
   GarbageData garbageData;
   String conf;
   ImageLocation _loc;
-  
+
 
   List<Model> modelList = [
-    Model(name: 'Dump Classifier',
-        modelPath: 'assets/gdump/vgg16_dump.tflite',
-        labelPath: 'assets/gdump/labels.txt'),
-    Model(name: 'Trash Classifier',
-        modelPath: 'assets/trash/vgg16_trash.tflite',
-        labelPath: 'assets/trash/labels.txt')
+  Model(name: 'Dump Classifier',
+  modelPath: 'assets/gdump/cnn_dump.tflite',
+  labelPath: 'assets/gdump/labels.txt'),
+  Model(name: 'Trash Classifier',
+  modelPath: 'assets/trash/vgg16_trash.tflite',
+  labelPath: 'assets/trash/labels.txt')
   ];
 
+
+
   @override
-  void initState() {
+  void initState(){
     super.initState();
     _loading = true;
     _prediction = Prediction();
@@ -103,6 +104,7 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
     print(_prediction.outputs);
     print(garbageData.country);
   }
+
 
 
   @override
