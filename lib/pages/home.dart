@@ -52,11 +52,15 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
         modelPath: valueChoose.modelPath,
         labelPath: valueChoose.labelPath);
 
-    _model.loadModel().then((val) {
+    setState(() {
+      _loading = false;
+    });
+
+    /*_model.loadModel().then((val) {
       setState(() {
         _loading = false;
       });
-    });
+    });*/
   }
 
     Future<GarbageData> createResult() async {
@@ -89,7 +93,11 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
   }
 
   Future getImage(ImageSource source) async {
+    setState(() => _loading = true);
     _model = valueChoose;
+    await _model.loadModel().then((val) {
+      setState(() => _loading = false);
+    });
     var image = await ImagePicker().getImage(source: source);
     if (image == null) return null;
     setState(() {
@@ -99,9 +107,15 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
     await _prediction.predictImage(_image);
     await _loc.getLocation();
     garbageData = await createResult();
-    sendData(garbageData);
-    setState(() => _loading = false);
+    sendData(garbageData).then((val) {
+      setState(() {
+        _loading = false;
+      });
+    });
+    //setState(() => _loading = false);
     print(_prediction.outputs);
+    print(_model.name);
+    print(_model.modelPath);
     print(garbageData.country);
   }
 
@@ -219,6 +233,7 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
                           onChanged: (newValue) {
                             setState(() {
                               valueChoose = newValue;
+                              print("Model shifted to ${valueChoose.name}");
                             });
                           },
                           items: modelList.map((item) {
