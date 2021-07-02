@@ -30,7 +30,7 @@ class _HomeState extends State<Home> with PortraitStatefulModeMixin<Home> {
 
   List<Model> modelList = [
   Model(name: 'Dump Classifier',
-  modelPath: 'assets/gdump/cnn_dump.tflite',
+  modelPath: 'assets/gdump/simplecnn_dump.tflite',
   labelPath: 'assets/gdump/labels.txt'),
   Model(name: 'Trash Classifier',
   modelPath: 'assets/trash/vgg16_trash.tflite',
