@@ -12,7 +12,7 @@ This repository contains a custom-built Android Mobile Application that allows a
 
 ### Models
 
-The project uses an in-house model trained on a custom dataset built from gathering images of various scenarios where garbage exists or doesn’t exist, making this a simple Binary Classification problem. We use the Convolutional Neural Networks as a base for these models. After several experimentations like data augmentation and avoiding overfitting on the “Non-Garbage Image” class label, we arrive at an accuracy of around 96% - 98%. Although our results seem robust, we observe that the model classifies poorly evaluated images that contain single garbage items on the roads and pavements.
+The project uses inhouse models trained on a custom dataset built from gathering images of various scenarios where garbage exists or doesn’t exist, making this a simple Binary Classification problem. We use the Convolutional Neural Networks as a base for these models. After several experimentations like data augmentation and avoiding overfitting on the “Non-Garbage Image” class label, we arrive at an accuracy of around 96% - 98%. Although our results seem robust, we observe that the model classifies poorly evaluated images that contain single garbage items on the roads and pavements.
 
 We further build one more model which is Pre-Trained on the famous VGG-16 model. The accuracy of this model on images with single trash objects comes close to 92% - 93%. Thus we propose two models in our application. Each targets a specific scenario. The two models we inculcate in our project are given as follows
 
@@ -40,17 +40,12 @@ The application asks for the following permissions from the user:
 
 ### Improvements
 
-The project, even with robust accuracy, lacks various state-of-the-art techniques and algorithms which can fine-tune the performance of the model.  Various possible improvements include:
+The project, even with robust accuracy, lacks various state-of-the-art techniques and algorithms that can fine-tune the performance of the model.  Various possible improvements include:
 
 - Fine-Tuning Both Models on more data
-- 
+- Use methods like XGBoost to combine the results of both models.
 
 ### Links
 
-[Project Files - Google Drive](https://drive.google.com/drive/u/1/folders/1QJZVfQ8M1zJhhepzQO92-miBizdgl03t)
-
-Link to the APK file
-
-[](https://ieeexplore.ieee.org/document/9573599)
-
-Research Paper Link
+- Link to [APK file](https://drive.google.com/drive/u/1/folders/1QJZVfQ8M1zJhhepzQO92-miBizdgl03t)
+- Research Paper [Link](https://ieeexplore.ieee.org/document/9573599)
